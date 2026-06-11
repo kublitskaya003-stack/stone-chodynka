@@ -209,7 +209,7 @@
       <div style="margin-left:auto;font-size:18px;color:#d4c9b0;">→</div>
     </div>
 
-    <div style="display:flex;align-items:center;gap:28px;padding:20px 0;border-bottom:1px solid #e8e4da;cursor:pointer;" onclick="go(8)">
+    <div style="display:flex;align-items:center;gap:28px;padding:20px 0;border-bottom:1px solid #e8e4da;cursor:pointer;" onclick="go(6)">
       <div style="font-size:42px;font-weight:800;color:#ece9e1;letter-spacing:-2px;min-width:52px;line-height:1;">3</div>
       <div>
         <div style="font-size:19px;font-weight:600;color:#1a1a1a;">Готовые объекты</div>
@@ -260,30 +260,30 @@
 </section>
 
 <!-- 4. ЛОКАЦИЯ + ОБЪЕКТЫ (объединено) -->
-<section class="slide" style="background:#f8f7f3;flex-direction:row;gap:40px;padding:32px 52px !important;align-items:stretch;">
-  <!-- Левая колонка: текст + 4 БЦ + ключевая цена -->
+<section class="slide" style="background:#f8f7f3;flex-direction:row;gap:44px;padding:32px 52px !important;align-items:stretch;">
+  <!-- Левая колонка: локация + цены -->
   <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;">
-    <div class="label">Объект 1 · STONE Ходынка</div>
-    <h2 style="font-size:24px;margin-bottom:10px;">Офисный квартал<br><strong>на Ходынском поле</strong></h2>
-    <div class="loc-list" style="margin-bottom:14px;">
+    <div class="label">Вариант 1 · STONE Ходынка</div>
+    <h2 style="font-size:24px;margin-bottom:14px;">Офисный квартал<br><strong>на Ходынском поле</strong></h2>
+    <div class="loc-list" style="margin-bottom:18px;">
       <div class="loc-item"><div class="loc-bullet"></div><p><strong>5 мин пешком</strong> от м. «ЦСКА» (БКЛ)</p></div>
-      <div class="loc-item"><div class="loc-bullet"></div><p><strong>~0,5 км</strong> от ЖК Лайнер</p></div>
-      <div class="loc-item"><div class="loc-bullet"></div><p>ТЦ Авиапарк · Парк Ходынское поле</p></div>
-      <div class="loc-item"><div class="loc-bullet"></div><p><strong>20 мин</strong> до «Москва-Сити»</p></div>
+      <div class="loc-item"><div class="loc-bullet"></div><p><strong>~0,5 км</strong> от ЖК Лайнер (Ходынский бул., 20А)</p></div>
+      <div class="loc-item"><div class="loc-bullet"></div><p>ТЦ Авиапарк · Парк Ходынское поле · деловой коридор</p></div>
+      <div class="loc-item"><div class="loc-bullet"></div><p><strong>20 мин</strong> до «Москва-Сити» без пересадок</p></div>
     </div>
-    <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#B8913A;margin-bottom:8px;">4 бизнес-центра класса А</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
-      <div class="obj-card" style="padding:10px 14px;"><div class="obj-n" style="font-size:9px;">Объект 1</div><div class="obj-name" style="font-size:13px;">STONE Ходынка 1</div><div class="obj-date" style="font-size:10px;">Ввод: <strong>IV кв. 2027</strong></div><span class="obj-pill" style="font-size:9px;">Ближайший ввод</span></div>
-      <div class="obj-card" style="padding:10px 14px;"><div class="obj-n" style="font-size:9px;">Объект 2</div><div class="obj-name" style="font-size:13px;">STONE Ходынка 2</div><div class="obj-date" style="font-size:10px;">Ввод: <strong>IV кв. 2028</strong></div></div>
-      <div class="obj-card" style="padding:10px 14px;"><div class="obj-n" style="font-size:9px;">Объект 3</div><div class="obj-name" style="font-size:13px;">STONE Ходынка 3</div><div class="obj-date" style="font-size:10px;">Ввод: <strong>IV кв. 2029</strong></div></div>
-      <div class="obj-card" style="padding:10px 14px;"><div class="obj-n" style="font-size:9px;">Объект 4</div><div class="obj-name" style="font-size:13px;">STONE Ходынка 4</div><div class="obj-date" style="font-size:10px;">Ввод: <strong>I кв. 2032</strong></div></div>
-    </div>
-    <div style="background:#fff;border:1px solid #e8e4da;border-radius:6px;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;">
-      <div style="font-size:11px;color:#888;">Средняя цена м² · 1 этаж · 2 лота</div>
-      <div style="font-size:22px;font-weight:800;color:#B8913A;letter-spacing:-0.5px;">2 060 000 ₽/м²</div>
+    <table class="lots-tbl">
+      <thead><tr><th>Лот</th><th>Площадь</th><th>₽ / м²</th><th>Стоимость</th><th>Статус</th></tr></thead>
+      <tbody>
+        <tr class="hi"><td><div class="lot-n">R2-101</div><div class="lot-sub">Ресторан · 1 эт.</div></td><td>184,4 м²</td><td>2 160 000 ₽</td><td><div class="price-main">398,3 млн</div></td><td><span class="st-badge">В продаже</span></td></tr>
+        <tr><td><div class="lot-n">R2-109</div><div class="lot-sub">Ресторан · 1 эт.</div></td><td>320,8 м²</td><td>1 960 000 ₽</td><td><div class="price-main">628,8 млн</div></td><td><span class="st-badge">В продаже</span></td></tr>
+      </tbody>
+    </table>
+    <div class="avg-bar" style="margin-top:14px;">
+      <div><div class="avg-bar-lbl">Средняя цена м² · 1 этаж · STONE Ходынка</div><div class="avg-bar-sub">Среднее по 2 лотам первого этажа</div></div>
+      <div style="text-align:right;"><div class="avg-bar-val">2 060 000 ₽/м²</div></div>
     </div>
   </div>
-  <!-- Правая колонка: изображение целиком -->
+  <!-- Правая колонка: аэрофото целиком -->
   <div style="flex:1.3;display:flex;align-items:center;justify-content:center;background:#ece9e1;border-radius:8px;overflow:hidden;min-width:0;">
     <img src="stone_aerial.jpg" alt="Аэровид STONE Ходынка" style="width:100%;height:100%;object-fit:contain;display:block;">
   </div>
@@ -302,7 +302,7 @@
     </div>
   </div>
   <div class="obj-info">
-    <div class="label">Объект 2 · Строящийся · Торговая площадь</div>
+    <div class="label">Вариант 2 · Строящийся · Торговая площадь</div>
     <h2>Красноармейская<br><strong>улица, 11</strong></h2>
     <p style="margin-top:8px;font-size:13px;color:#888;">Торговая площадь · 1 этаж · 21-этажный ЖК · м. Аэропорт</p>
     <div class="obj-data-grid">
@@ -644,56 +644,7 @@
   </div>
 </section>
 
-<!-- ВЫВОД: ОЦЕНКА ОБЪЕКТА -->
-<section class="slide" style="background:#111;flex-direction:column;justify-content:center;align-items:flex-start;padding:48px 80px !important;">
-  <div style="font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#B8913A;margin-bottom:16px;">Оценка · 363 м²</div>
-  <h2 style="color:#fff;font-size:32px;font-weight:300;letter-spacing:-0.5px;margin-bottom:32px;">Вывод. <strong style="font-weight:800;">Оценка объекта</strong></h2>
-
-  <!-- Ближайшие аналоги — 3 карточки -->
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;width:100%;max-width:980px;margin-bottom:32px;">
-    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:8px;padding:20px 22px;">
-      <div style="font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:#666;margin-bottom:10px;">Аналог 1 · ~190 м²</div>
-      <div style="font-size:13px;color:#aaa;margin-bottom:6px;">Ходынский бул., 2</div>
-      <div style="font-size:22px;font-weight:800;color:#4ade80;letter-spacing:-0.5px;line-height:1;">314 737 <span style="font-size:12px;font-weight:400;color:#555;">₽/м²</span></div>
-      <div style="margin-top:8px;font-size:11px;color:#555;">363 м² → <span style="color:#4ade80;font-weight:600;">114,2 млн ₽</span></div>
-    </div>
-    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:8px;padding:20px 22px;">
-      <div style="font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:#666;margin-bottom:10px;">Аналог 2 · ~253 м²</div>
-      <div style="font-size:13px;color:#aaa;margin-bottom:6px;">Ленинградский пр-т, 29к1</div>
-      <div style="font-size:22px;font-weight:800;color:#4ade80;letter-spacing:-0.5px;line-height:1;">770 751 <span style="font-size:12px;font-weight:400;color:#555;">₽/м²</span></div>
-      <div style="margin-top:8px;font-size:11px;color:#555;">363 м² → <span style="color:#4ade80;font-weight:600;">279,8 млн ₽</span></div>
-    </div>
-    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:8px;padding:20px 22px;">
-      <div style="font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:#666;margin-bottom:10px;">Аналог 3 · ~320 м²</div>
-      <div style="font-size:13px;color:#aaa;margin-bottom:6px;">Ходынский бул., 6с1</div>
-      <div style="font-size:22px;font-weight:800;color:#4ade80;letter-spacing:-0.5px;line-height:1;">1 903 125 <span style="font-size:12px;font-weight:400;color:#555;">₽/м²</span></div>
-      <div style="margin-top:8px;font-size:11px;color:#555;">363 м² → <span style="color:#4ade80;font-weight:600;">690,8 млн ₽</span></div>
-    </div>
-  </div>
-
-  <!-- Итоговая оценка -->
-  <div style="width:100%;max-width:980px;background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:28px 36px;display:flex;align-items:center;justify-content:space-between;gap:40px;margin-bottom:20px;">
-    <div>
-      <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#4ade80;margin-bottom:10px;">Среднее по 3 ближайшим аналогам</div>
-      <div style="font-size:13px;color:#888;margin-bottom:4px;">Ходынский бул. 2 + Ленинградский пр-т 29к1 + Ходынский бул. 6с1</div>
-      <div style="font-size:42px;font-weight:800;color:#fff;letter-spacing:-2px;line-height:1;">996 204 <span style="font-size:18px;font-weight:400;color:#666;">₽/м²</span></div>
-    </div>
-    <div style="text-align:right;border-left:1px solid rgba(255,255,255,0.07);padding-left:40px;">
-      <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#4ade80;margin-bottom:10px;">Объект 363 м² · потенциальная стоимость</div>
-      <div style="font-size:48px;font-weight:800;color:#4ade80;letter-spacing:-2px;line-height:1;">361,6 <span style="font-size:20px;font-weight:400;color:#4ade80;">млн ₽</span></div>
-      <div style="font-size:12px;color:#555;margin-top:6px;">диапазон: 114,2 — 690,8 млн ₽</div>
-    </div>
-  </div>
-
-  <div style="padding:14px 20px;background:rgba(184,145,58,0.07);border-left:3px solid #B8913A;border-radius:0 4px 4px 0;max-width:980px;">
-    <div style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.75;">
-      По ближайшим аналогам средняя цена составляет <strong style="color:#e8c96a;">996 204 ₽/м²</strong> — следовательно, потенциальная рыночная стоимость объекта площадью 363 м² оценивается в <strong style="color:#4ade80;">361,6 млн ₽</strong>.
-      Предложение STONE Ходынка 1 этаж (2 060 000 ₽/м², <strong style="color:#B8913A;">747,8 млн ₽</strong>) превышает рыночный уровень ближайших аналогов в <strong style="color:#e8c96a;">2,1×</strong> — это инвестиционная премия строящегося класса А.
-    </div>
-  </div>
-</section>
-
-<!-- ПОСЛЕДНИЙ: СРАВНИТЕЛЬНАЯ СТОИМОСТЬ ₽/М² -->
+<!-- СВОДКА — идёт первой -->
 <section class="slide" style="background:#111;flex-direction:column;justify-content:center;align-items:flex-start;padding:48px 80px !important;">
   <div style="font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#B8913A;margin-bottom:16px;">Итог анализа</div>
   <div style="display:flex;align-items:baseline;gap:32px;margin-bottom:32px;">
@@ -701,7 +652,6 @@
     <div style="font-size:11px;color:#555;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;">+ стоимость помещения 363 м²</div>
   </div>
 
-  <!-- Заголовки колонок -->
   <div style="display:grid;grid-template-columns:1fr 155px 160px;gap:20px;width:100%;max-width:980px;margin-bottom:10px;">
     <div></div>
     <div style="text-align:right;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#444;">₽ / м²</div>
@@ -710,7 +660,6 @@
 
   <div style="display:flex;flex-direction:column;gap:20px;width:100%;max-width:980px;">
 
-    <!-- STONE 1 этаж: 2 060 000 → 747,8 млн -->
     <div style="display:grid;grid-template-columns:1fr 155px 160px;align-items:center;gap:20px;">
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
@@ -732,7 +681,6 @@
       </div>
     </div>
 
-    <!-- Среднее строящихся: 1 202 000 → 436,3 млн -->
     <div style="display:grid;grid-template-columns:1fr 155px 160px;align-items:center;gap:20px;">
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
@@ -756,29 +704,27 @@
 
     <div style="border-top:1px solid rgba(255,255,255,0.07);margin:2px 0;"></div>
 
-    <!-- Рынок ближайшие: 996 204 → 361,6 млн -->
     <div style="display:grid;grid-template-columns:1fr 155px 160px;align-items:center;gap:20px;">
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
           <div style="width:10px;height:10px;border-radius:50%;background:#4ade80;flex-shrink:0;"></div>
           <span style="font-size:11px;color:#999;letter-spacing:0.8px;text-transform:uppercase;">Рынок · ближайшие аналоги</span>
-          <span style="font-size:10px;color:#666;padding:2px 7px;border:1px solid rgba(74,222,128,0.2);border-radius:2px;">Ленинградский 29к1 · Ходынский 2 · Ходынский 6с1</span>
+          <span style="font-size:10px;color:#666;padding:2px 7px;border:1px solid rgba(74,222,128,0.2);border-radius:2px;">Ленинградский 29к1 · Ходынский 2 · Рыбалко 2к6</span>
         </div>
         <div style="height:7px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;">
-          <div style="height:100%;width:48.4%;background:#4ade80;border-radius:4px;"></div>
+          <div style="height:100%;width:29%;background:#4ade80;border-radius:4px;"></div>
         </div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:20px;font-weight:800;color:#4ade80;letter-spacing:-0.5px;line-height:1;">996 204</div>
+        <div style="font-size:20px;font-weight:800;color:#4ade80;letter-spacing:-0.5px;line-height:1;">596 295</div>
         <div style="font-size:10px;color:#555;margin-top:2px;">₽ / м²</div>
       </div>
       <div style="text-align:right;padding:10px 14px;background:rgba(74,222,128,0.07);border-radius:6px;border:1px solid rgba(74,222,128,0.15);">
-        <div style="font-size:20px;font-weight:800;color:#4ade80;letter-spacing:-0.5px;line-height:1;">361,6</div>
+        <div style="font-size:20px;font-weight:800;color:#4ade80;letter-spacing:-0.5px;line-height:1;">216,5</div>
         <div style="font-size:10px;color:#555;margin-top:2px;">млн ₽</div>
       </div>
     </div>
 
-    <!-- Рынок все: 558 000 → 202,6 млн -->
     <div style="display:grid;grid-template-columns:1fr 155px 160px;align-items:center;gap:20px;">
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
@@ -804,8 +750,62 @@
 
   <div style="margin-top:28px;padding:14px 20px;background:rgba(184,145,58,0.07);border-left:3px solid #B8913A;border-radius:0 4px 4px 0;max-width:980px;">
     <div style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.75;">
-      <strong style="color:#B8913A;">Вывод:</strong> По ближайшим аналогам (Ленинградский пр-т 29к1, Ходынский бул. 2 и 6с1) средняя цена м² составляет <strong style="color:#e8c96a;">996 204 ₽/м²</strong> — следовательно, потенциальная стоимость объекта 363 м² оценивается в <strong style="color:#4ade80;">361,6 млн ₽</strong>.
-      STONE Ходынка 1 этаж превышает рыночный уровень ближайших аналогов в <strong style="color:#e8c96a;">2,1×</strong> — инвестиционная премия строящегося класса А.
+      <strong style="color:#B8913A;">Сводка:</strong> По ближайшим аналогам (Ленинградский пр-т 29к1, Ходынский бул. 2, Маршала Рыбалко 2к6) средняя цена м² составляет <strong style="color:#e8c96a;">596 295 ₽/м²</strong> — потенциальная стоимость объекта 363 м² оценивается в <strong style="color:#4ade80;">216,5 млн ₽</strong>.
+      STONE Ходынка 1 этаж превышает рыночный уровень ближайших аналогов в <strong style="color:#e8c96a;">3,5×</strong>.
+    </div>
+  </div>
+</section>
+
+<!-- ВЫВОД — идёт последним -->
+<section class="slide" style="background:#111;flex-direction:column;justify-content:center;align-items:flex-start;padding:48px 80px !important;">
+  <div style="font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#B8913A;margin-bottom:16px;">Оценка · 363 м²</div>
+  <h2 style="color:#fff;font-size:32px;font-weight:300;letter-spacing:-0.5px;margin-bottom:24px;">Вывод. <strong style="font-weight:800;">Оценка объекта</strong></h2>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;width:100%;max-width:980px;margin-bottom:24px;">
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:8px;padding:18px 20px;">
+      <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#666;margin-bottom:6px;">Аналог 1 · ~190 м²</div>
+      <div style="font-size:13px;color:#aaa;margin-bottom:2px;font-weight:600;">Ходынский бул., 2</div>
+      <div style="font-size:11px;color:#555;margin-bottom:10px;">400 м от ЖК Лайнер · тот же квартал · своб. назначения · 1 эт.</div>
+      <div style="font-size:20px;font-weight:800;color:#4ade80;letter-spacing:-0.5px;line-height:1;">314 737 <span style="font-size:11px;font-weight:400;color:#555;">₽/м²</span></div>
+      <div style="margin-top:6px;font-size:11px;color:#555;">363 м² → <span style="color:#4ade80;font-weight:600;">114,2 млн ₽</span></div>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:8px;padding:18px 20px;">
+      <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#666;margin-bottom:6px;">Аналог 2 · ~253 м²</div>
+      <div style="font-size:13px;color:#aaa;margin-bottom:2px;font-weight:600;">Ленинградский пр-т, 29к1</div>
+      <div style="font-size:11px;color:#555;margin-bottom:10px;">1,3 км · деловой коридор Ленинградского пр-та · ближайшая по площади к 363 м²</div>
+      <div style="font-size:20px;font-weight:800;color:#4ade80;letter-spacing:-0.5px;line-height:1;">770 751 <span style="font-size:11px;font-weight:400;color:#555;">₽/м²</span></div>
+      <div style="margin-top:6px;font-size:11px;color:#555;">363 м² → <span style="color:#4ade80;font-weight:600;">279,8 млн ₽</span></div>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:8px;padding:18px 20px;">
+      <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#666;margin-bottom:6px;">Аналог 3 · ~269 м²</div>
+      <div style="font-size:13px;color:#aaa;margin-bottom:2px;font-weight:600;">Маршала Рыбалко, 2к6</div>
+      <div style="font-size:11px;color:#555;margin-bottom:10px;">1,6 км · коммерция в жилом доме · сопоставимый формат торговли/услуг</div>
+      <div style="font-size:20px;font-weight:800;color:#4ade80;letter-spacing:-0.5px;line-height:1;">703 396 <span style="font-size:11px;font-weight:400;color:#555;">₽/м²</span></div>
+      <div style="margin-top:6px;font-size:11px;color:#555;">363 м² → <span style="color:#4ade80;font-weight:600;">255,3 млн ₽</span></div>
+    </div>
+  </div>
+
+  <div style="width:100%;max-width:980px;background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:24px 32px;display:flex;align-items:center;justify-content:space-between;gap:40px;margin-bottom:18px;">
+    <div>
+      <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#4ade80;margin-bottom:8px;">Среднее по 3 ближайшим аналогам</div>
+      <div style="font-size:12px;color:#888;margin-bottom:4px;">Ходынский бул. 2 + Ленинградский пр-т 29к1 + Маршала Рыбалко 2к6</div>
+      <div style="font-size:38px;font-weight:800;color:#fff;letter-spacing:-2px;line-height:1;">596 295 <span style="font-size:16px;font-weight:400;color:#666;">₽/м²</span></div>
+    </div>
+    <div style="text-align:right;border-left:1px solid rgba(255,255,255,0.07);padding-left:36px;">
+      <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#4ade80;margin-bottom:8px;">Объект 363 м² · потенциальная стоимость</div>
+      <div style="font-size:44px;font-weight:800;color:#4ade80;letter-spacing:-2px;line-height:1;">216,5 <span style="font-size:18px;font-weight:400;color:#4ade80;">млн ₽</span></div>
+      <div style="font-size:11px;color:#555;margin-top:4px;">диапазон: 114,2 — 279,8 млн ₽</div>
+    </div>
+  </div>
+
+  <div style="padding:14px 20px;background:rgba(184,145,58,0.07);border-left:3px solid #B8913A;border-radius:0 4px 4px 0;max-width:980px;">
+    <div style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.8;">
+      Выбранные аналоги — наиболее близкие по <strong style="color:#e8c96a;">локации, формату и площади</strong>:
+      <strong style="color:#aaa;">Ходынский бул., 2</strong> — в 400 м от ЖК Лайнер (Ходынский бул., 20А), тот же квартал;
+      <strong style="color:#aaa;">Ленинградский пр-т, 29к1</strong> — ближайший деловой коридор (~1,3 км), площадь 253 м² — наиболее сопоставима с 363 м²;
+      <strong style="color:#aaa;">Маршала Рыбалко, 2к6</strong> — коммерческое помещение в жилом комплексе (~1,6 км), аналогичный формат стрит-ритейла.
+      Среднее по 3 аналогам — <strong style="color:#e8c96a;">596 295 ₽/м²</strong> → потенциальная стоимость объекта <strong style="color:#4ade80;">216,5 млн ₽</strong>.
+      Предложение STONE Ходынка 1 этаж (2 060 000 ₽/м², <strong style="color:#B8913A;">747,8 млн ₽</strong>) превышает рынок в <strong style="color:#e8c96a;">3,5×</strong> — инвестиционная премия строящегося класса А.
     </div>
   </div>
 </section>
