@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STONE Ходынка — Коммерческие помещения</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Helvetica Neue',Arial,sans-serif; background:#f5f4f0; color:#1a1a1a; overflow:hidden; height:100vh; }
+  .slides { width:100%; height:100vh; position:relative; }
+  .slide { display:none; width:100%; height:100vh; position:absolute; top:0; left:0; flex-direction:column; justify-content:center; align-items:center; padding:48px 72px; }
+  .slide.active { display:flex; }
+
+  /* NAV */
+  .nav-btn { position:fixed; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.9); border:1px solid #e0ddd5; color:#1a1a1a; width:44px; height:44px; border-radius:50%; font-size:18px; cursor:pointer; z-index:200; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 12px rgba(0,0,0,0.08); transition:all 0.2s; }
+  .nav-btn:hover { background:#fff; box-shadow:0 4px 20px rgba(0,0,0,0.14); }
+  #prev { left:20px; }
+  #next { right:20px; }
+  .nav { position:fixed; bottom:28px; left:50%; transform:translateX(-50%); display:flex; gap:8px; z-index:200; }
+  .dot { width:7px; height:7px; border-radius:50%; background:rgba(0,0,0,0.18); cursor:pointer; transition:all 0.3s; }
+  .dot.active { background:#B8913A; width:22px; border-radius:4px; }
+  .slide-counter { position:fixed; top:28px; right:48px; font-size:12px; color:#aaa; letter-spacing:2px; z-index:200; }
+
+  /* SHARED */
+  .label { font-size:10px; letter-spacing:3.5px; text-transform:uppercase; color:#B8913A; margin-bottom:14px; }
+  h1 { font-size:58px; font-weight:300; letter-spacing:-1.5px; line-height:1.05; color:#1a1a1a; }
+  h1 strong { font-weight:800; }
+  h2 { font-size:34px; font-weight:300; letter-spacing:-0.5px; line-height:1.2; color:#1a1a1a; }
+  h2 strong { font-weight:700; }
+  .tag { border:1px solid #d4b97a; color:#8a6820; background:rgba(184,145,58,0.06); padding:7px 18px; border-radius:2px; font-size:12px; letter-spacing:0.5px; }
+  .st-badge { font-size:10px; padding:3px 8px; border-radius:2px; background:rgba(34,170,85,0.1); color:#1a9945; border:1px solid rgba(34,170,85,0.25); white-space:nowrap; }
+  .build-badge { font-size:10px; padding:3px 8px; border-radius:2px; background:rgba(184,145,58,0.1); color:#8a6820; border:1px solid rgba(184,145,58,0.4); white-space:nowrap; }
+  .cian-link { font-size:13px; color:#888; text-decoration:none; transition:color 0.2s; }
+  .cian-link:hover { color:#B8913A; text-decoration:underline; }
+
+  /* SECTION DIVIDERS */
+  .section-div { background:#111 !important; align-items:flex-start !important; padding:72px 96px !important; overflow:hidden; }
+  .section-div .s-num { font-size:220px; font-weight:900; color:rgba(255,255,255,0.04); position:absolute; right:40px; bottom:-30px; letter-spacing:-8px; line-height:1; pointer-events:none; }
+  .section-div .tag { border-color:rgba(184,145,58,0.5); color:#d4a93a; background:rgba(184,145,58,0.06); }
+
+  /* PHOTO CAROUSEL */
+  .photo-area { flex:1.1; display:flex; flex-direction:column; gap:10px; min-width:0; }
+  .photo-main-wrap { flex:1; border-radius:8px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,0.12); min-height:0; }
+  .photo-main-img { width:100%; height:100%; object-fit:cover; display:block; transition:opacity 0.15s; }
+  .photo-strip { display:flex; gap:10px; height:80px; flex-shrink:0; }
+  .photo-thumb { flex:1; object-fit:cover; border-radius:5px; cursor:pointer; opacity:0.5; transition:opacity 0.2s,outline 0.15s; outline:2px solid transparent; outline-offset:2px; }
+  .photo-thumb:hover { opacity:0.82; }
+  .photo-thumb.active { opacity:1; outline-color:#B8913A; }
+
+  /* DATA CARDS */
+  .data-card-w { background:#f8f7f3; border:1px solid #e8e4da; border-radius:6px; padding:20px 18px; }
+  .data-card-c { background:#fff; border:1px solid #e8e4da; border-radius:6px; padding:20px 18px; }
+  .card-lbl { font-size:10px; letter-spacing:2.5px; text-transform:uppercase; color:#B8913A; margin-bottom:6px; }
+  .card-val { font-size:28px; font-weight:800; color:#1a1a1a; letter-spacing:-0.5px; }
+  .card-sub { font-size:12px; color:#aaa; margin-top:3px; }
+
+  /* SLIDE 1: MAP */
+  .map-slide { padding:0 !important; overflow:hidden; }
+  #map-wrap { width:100%; height:100%; position:relative; }
+  #map { width:100%; height:100%; z-index:1; }
+  .map-overlay { position:absolute; top:20px; left:60px; z-index:1000; background:rgba(255,255,255,0.97); padding:16px 22px; border-radius:8px; box-shadow:0 4px 24px rgba(0,0,0,0.13); pointer-events:none; }
+  .map-legend { position:absolute; bottom:50px; left:60px; z-index:1000; background:rgba(255,255,255,0.97); padding:12px 18px; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.1); font-size:12px; pointer-events:none; }
+  .leg-row { display:flex; align-items:center; gap:8px; margin-top:6px; }
+  .leg-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+  .leaflet-tooltip.mtt { background:rgba(255,255,255,0.95); border:1px solid #e0ddd5; border-radius:4px; padding:3px 8px; font-size:11px; font-family:'Helvetica Neue',Arial,sans-serif; color:#1a1a1a; white-space:nowrap; box-shadow:0 1px 6px rgba(0,0,0,0.12); pointer-events:none; }
+  .leaflet-tooltip.mtt::before { display:none; }
+  .leaflet-tooltip.mtt-new { border-color:#B8913A; color:#8a6820; background:rgba(255,249,238,0.97); }
+
+  /* SLIDE 2: TITLE */
+  .s-title { background:#fff; }
+  .stone-wordmark { font-size:11px; letter-spacing:7px; text-transform:uppercase; color:#B8913A; margin-bottom:52px; display:flex; align-items:center; gap:14px; justify-content:center; }
+  .stone-wordmark::before,.stone-wordmark::after { content:''; width:48px; height:1px; background:#B8913A; }
+  .s-title h1 { margin-bottom:20px; }
+  .s-title .sub { font-size:17px; color:#888; letter-spacing:0.5px; margin-bottom:44px; }
+  .tags-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .s1-deco { position:absolute; bottom:0; left:0; right:0; height:4px; background:linear-gradient(90deg,#B8913A 0%,#e8c96a 50%,#B8913A 100%); }
+
+  /* LOCATION */
+  .s-loc { background:#f8f7f3; flex-direction:row !important; gap:52px; padding:40px 56px !important; }
+  .s-loc-left { flex:1; display:flex; flex-direction:column; justify-content:center; }
+  .s-loc-img { flex:1.7; border-radius:6px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,0.12); }
+  .s-loc-img img { width:100%; height:100%; object-fit:cover; display:block; }
+  .loc-list { margin-top:28px; display:flex; flex-direction:column; gap:14px; }
+  .loc-item { display:flex; align-items:flex-start; gap:12px; }
+  .loc-bullet { width:6px; height:6px; border-radius:50%; background:#B8913A; margin-top:8px; flex-shrink:0; }
+  .loc-item p { font-size:14px; color:#555; line-height:1.55; }
+  .loc-item p strong { color:#1a1a1a; font-weight:600; }
+
+  /* 4 OBJECTS */
+  .s-4obj { background:#fff; }
+  .obj-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; width:100%; margin-top:36px; }
+  .obj-card { background:#f8f7f3; border:1px solid #e8e4da; border-radius:6px; padding:28px 22px; position:relative; overflow:hidden; }
+  .obj-card::after { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:#B8913A; }
+  .obj-n { font-size:10px; letter-spacing:3px; color:#B8913A; text-transform:uppercase; margin-bottom:10px; }
+  .obj-name { font-size:18px; font-weight:700; margin-bottom:6px; color:#1a1a1a; }
+  .obj-date { font-size:13px; color:#888; margin-bottom:18px; }
+  .obj-pill { display:inline-block; background:rgba(184,145,58,0.1); border:1px solid rgba(184,145,58,0.35); color:#8a6820; font-size:10px; padding:3px 10px; border-radius:2px; letter-spacing:1px; }
+  .obj-note { margin-top:14px; font-size:12px; color:#aaa; }
+
+  /* FLOOR PLAN */
+  .s-floor { background:#f8f7f3; flex-direction:row !important; gap:44px; padding:36px 56px !important; }
+  .s-floor-left { flex:1; display:flex; flex-direction:column; justify-content:center; }
+  .s-floor-img { flex:1.5; border-radius:6px; overflow:hidden; background:#fff; display:flex; align-items:center; box-shadow:0 4px 24px rgba(0,0,0,0.08); }
+  .s-floor-img img { width:100%; height:100%; object-fit:contain; display:block; }
+  .lots-tbl { width:100%; border-collapse:collapse; margin-top:22px; }
+  .lots-tbl th { font-size:9px; letter-spacing:2.5px; text-transform:uppercase; color:#aaa; text-align:left; padding:8px 10px; border-bottom:1px solid #e8e4da; }
+  .lots-tbl td { padding:12px 10px; font-size:13px; color:#444; border-bottom:1px solid #f0ede6; vertical-align:middle; }
+  .lots-tbl tr.hi td { background:rgba(184,145,58,0.04); }
+  .lots-tbl tr.hi td:first-child { border-left:3px solid #B8913A; padding-left:8px; }
+  .lot-n { font-weight:600; font-size:13px; color:#1a1a1a; }
+  .lot-sub { font-size:11px; color:#aaa; margin-top:1px; }
+  .price-main { font-size:16px; font-weight:700; color:#1a1a1a; }
+
+  /* ₽/М² SLIDES */
+  .s-psm { background:#fff; }
+  .psm-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:24px; width:100%; max-width:900px; margin-top:36px; }
+  .psm-card { border:1px solid #e8e4da; border-radius:8px; padding:32px 28px; position:relative; background:#f8f7f3; }
+  .psm-card.featured { border-color:#B8913A; background:#fff; box-shadow:0 4px 32px rgba(184,145,58,0.12); }
+  .psm-card.featured::before { content:'★ ПРИОРИТЕТ'; position:absolute; top:-1px; left:32px; background:#B8913A; color:#fff; font-size:9px; letter-spacing:2px; font-weight:700; padding:4px 12px; border-radius:0 0 4px 4px; }
+  .psm-lot { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#888; margin-bottom:8px; }
+  .psm-type { font-size:20px; font-weight:700; color:#1a1a1a; margin-bottom:4px; }
+  .psm-area { font-size:14px; color:#888; margin-bottom:24px; }
+  .psm-num { font-size:40px; font-weight:800; color:#B8913A; letter-spacing:-1px; line-height:1; }
+  .psm-unit { font-size:14px; color:#aaa; margin-top:6px; }
+  .psm-divider { width:40px; height:2px; background:#e8e4da; margin:16px 0; }
+  .psm-total { font-size:13px; color:#666; }
+  .psm-total strong { color:#1a1a1a; font-size:18px; }
+  .avg-bar { margin-top:28px; background:#f8f7f3; border:1px solid #e8e4da; border-radius:6px; padding:16px 24px; display:flex; align-items:center; justify-content:space-between; max-width:900px; width:100%; }
+  .avg-bar-lbl { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#888; }
+  .avg-bar-val { font-size:28px; font-weight:800; color:#B8913A; letter-spacing:-0.5px; }
+  .avg-bar-sub { font-size:12px; color:#aaa; margin-top:2px; }
+
+  /* MARKET AVERAGE SLIDE */
+  .s-mkt { background:#f8f7f3; }
+  .mkt-top { display:flex; gap:40px; width:100%; align-items:flex-start; }
+  .mkt-left { flex:1; }
+  .mkt-right { flex:1.1; background:#fff; border-radius:8px; padding:28px 28px; border:1px solid #e8e4da; }
+  .mkt-big-num { font-size:72px; font-weight:800; color:#B8913A; letter-spacing:-3px; line-height:1; margin-top:8px; }
+  .mkt-big-sub { font-size:15px; color:#aaa; margin-top:6px; }
+  .mkt-compare { margin-top:24px; display:flex; flex-direction:column; gap:10px; }
+  .mkt-cmp-row { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-radius:5px; }
+  .mkt-cmp-row.mkt { background:rgba(184,145,58,0.06); border:1px solid rgba(184,145,58,0.2); }
+  .mkt-cmp-row.ref { background:rgba(37,99,235,0.04); border:1px solid rgba(37,99,235,0.15); }
+  .mkt-cmp-lbl { font-size:12px; color:#555; }
+  .mkt-cmp-val { font-size:16px; font-weight:700; color:#1a1a1a; }
+  .mkt-cmp-val.gold { color:#B8913A; }
+  .comp-tbl { width:100%; border-collapse:collapse; }
+  .comp-tbl th { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#aaa; text-align:left; padding:6px 8px; border-bottom:1px solid #e8e4da; }
+  .comp-tbl td { padding:11px 8px; font-size:12px; color:#444; border-bottom:1px solid #f0ede6; }
+  .comp-tbl td.bold { font-weight:700; color:#1a1a1a; font-size:13px; }
+  .comp-tbl td.gold { color:#B8913A; font-weight:700; }
+  .comp-tbl tr:last-child td { border-bottom:none; }
+  .comp-tbl .score-dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:#B8913A; margin-right:4px; }
+
+  /* OBJECT SLIDES */
+  .obj-slide { flex-direction:row !important; gap:52px; padding:40px 64px !important; align-items:stretch !important; }
+  .obj-info { flex:1; display:flex; flex-direction:column; justify-content:center; }
+  .obj-data-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:32px; }
+  .cian-row { margin-top:24px; display:flex; align-items:center; gap:10px; }
+
+  /* 3RD FLOOR SLIDE */
+  .s-3floor { background:#f8f7f3; flex-direction:row !important; gap:44px; padding:36px 56px !important; }
+  .s-3floor-img { flex:1.5; border-radius:6px; overflow:hidden; background:#fff; display:flex; align-items:center; box-shadow:0 4px 24px rgba(0,0,0,0.08); }
+  .s-3floor-img img { width:100%; height:100%; object-fit:contain; display:block; }
+  .s-3floor-right { flex:1; display:flex; flex-direction:column; justify-content:center; }
+</style>
+</head>
+<body>
+<div class="slides">
+
+<!-- 1. TITLE -->
+<section class="slide s-title active">
+  <div style="text-align:center;">
+
+
+    <h1>Коммерческие объекты<br><strong>в локации Ходынка</strong></h1>
+    <p class="sub">Сравнение 18 объектов · Строящиеся vs. готовые · ~3 км от ЖК Лайнер</p>
+    <div class="tags-row">
+      <span class="tag">2 строящихся объекта</span>
+      <span class="tag">13 готовых объектов</span>
+      <span class="tag">1 этаж · Ритейл · ~320 м²</span>
+      <span class="tag">Карта объектов</span>
+    </div>
+  </div>
+  <div class="s1-deco"></div>
+</section>
+
+<!-- 2. СОДЕРЖАНИЕ -->
+<section class="slide" style="background:#fff;flex-direction:column;justify-content:center;align-items:flex-start;padding:72px 96px !important;">
+  <div class="label" style="margin-bottom:28px;">Содержание</div>
+  <div style="display:flex;flex-direction:column;width:100%;max-width:680px;">
+
+    <div style="display:flex;align-items:center;gap:28px;padding:20px 0;border-bottom:1px solid #e8e4da;cursor:pointer;" onclick="go(2)">
+      <div style="font-size:42px;font-weight:800;color:#ece9e1;letter-spacing:-2px;min-width:52px;line-height:1;">1</div>
+      <div>
+        <div style="font-size:19px;font-weight:600;color:#1a1a1a;">Карта</div>
+        <div style="font-size:13px;color:#aaa;margin-top:3px;">15 объектов на интерактивной карте · ~3 км от ЖК Лайнер</div>
+      </div>
+      <div style="margin-left:auto;font-size:18px;color:#d4c9b0;">→</div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:28px;padding:20px 0;border-bottom:1px solid #e8e4da;cursor:pointer;" onclick="go(3)">
+      <div style="font-size:42px;font-weight:800;color:#ece9e1;letter-spacing:-2px;min-width:52px;line-height:1;">2</div>
+      <div>
+        <div style="font-size:19px;font-weight:600;color:#1a1a1a;">Строящиеся объекты</div>
+        <div style="font-size:13px;color:#aaa;margin-top:3px;">STONE Ходынка + Красноармейская ул., 11 · Лоты, планировки, цены</div>
+      </div>
+      <div style="margin-left:auto;font-size:18px;color:#d4c9b0;">→</div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:28px;padding:20px 0;border-bottom:1px solid #e8e4da;cursor:pointer;" onclick="go(11)">
+      <div style="font-size:42px;font-weight:800;color:#ece9e1;letter-spacing:-2px;min-width:52px;line-height:1;">3</div>
+      <div>
+        <div style="font-size:19px;font-weight:600;color:#1a1a1a;">Готовые объекты</div>
+        <div style="font-size:13px;color:#aaa;margin-top:3px;">13 готовых коммерческих объектов · от 49,9 до 609 млн ₽</div>
+      </div>
+      <div style="margin-left:auto;font-size:18px;color:#d4c9b0;">→</div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:28px;padding:20px 0;cursor:pointer;" onclick="go(slides.length-1)">
+      <div style="font-size:42px;font-weight:800;color:#ece9e1;letter-spacing:-2px;min-width:52px;line-height:1;">4</div>
+      <div>
+        <div style="font-size:19px;font-weight:600;color:#1a1a1a;">Средняя стоимость квадратного метра</div>
+        <div style="font-size:13px;color:#aaa;margin-top:3px;">Сравнение ₽/м² · STONE vs. рыночные аналоги · 13 готовых объектов</div>
+      </div>
+      <div style="margin-left:auto;font-size:18px;color:#d4c9b0;">→</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- 3. MAP -->
+<section class="slide map-slide" id="map-slide">
+  <div id="map-wrap">
+    <div id="map"></div>
+    <div class="map-overlay">
+      <div class="label" style="margin-bottom:4px;">Карта объектов</div>
+      <h2 style="font-size:20px;">18 объектов · ~3 км от ЖК Лайнер</h2>
+    </div>
+    <div class="map-legend">
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#B8913A;margin-bottom:6px;">Легенда</div>
+      <div class="leg-row"><div class="leg-dot" style="background:#B8913A;"></div><span>Строящиеся (STONE + Красноармейская)</span></div>
+      <div class="leg-row"><div class="leg-dot" style="background:#2563eb;"></div><span>Готовые объекты</span></div>
+      <div class="leg-row"><div class="leg-dot" style="background:#16a34a;border-radius:3px;"></div><span>ЖК Лайнер · Ходынский б-р, 20А</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. SECTION: СТРОЯЩИЕСЯ -->
+<section class="slide section-div">
+  <div style="font-size:11px;letter-spacing:5px;text-transform:uppercase;color:#B8913A;margin-bottom:20px;">Раздел 01</div>
+  <h1 style="font-size:78px;font-weight:800;color:#fff;letter-spacing:-3px;line-height:1;font-family:inherit;">Строящиеся<br><strong>объекты</strong></h1>
+  <div style="margin-top:36px;display:flex;gap:12px;flex-wrap:wrap;">
+    <span class="tag">2 объекта</span>
+    <span class="tag">Класс А</span>
+    <span class="tag">Ввод 2027–2032</span>
+  </div>
+  <div class="s-num">01</div>
+</section>
+
+<!-- 4. LOCATION -->
+<section class="slide s-loc">
+  <div class="s-loc-left">
+    <div class="label">Локация</div>
+    <h2>Офисный квартал<br><strong>на Ходынском поле</strong></h2>
+    <div class="loc-list">
+      <div class="loc-item"><div class="loc-bullet"></div><p><strong>5 мин пешком</strong> от м. «ЦСКА» (БКЛ)</p></div>
+      <div class="loc-item"><div class="loc-bullet"></div><p><strong>~0,5 км</strong> от ЖК Лайнер — ближайший коммерческий квартал</p></div>
+      <div class="loc-item"><div class="loc-bullet"></div><p>Рядом <strong>ТЦ Авиапарк</strong> и <strong>Парк Ходынское поле</strong></p></div>
+      <div class="loc-item"><div class="loc-bullet"></div><p>Деловой коридор: <strong>VK, OZON, BMW, Ростелеком, Северсталь</strong></p></div>
+      <div class="loc-item"><div class="loc-bullet"></div><p><strong>20 мин без пересадок</strong> до «Москва-Сити»</p></div>
+    </div>
+  </div>
+  <div class="s-loc-img"><img src="stone_aerial.jpg" alt="Аэровид STONE Ходынка"></div>
+</section>
+
+<!-- 5. 4 OBJECTS -->
+<section class="slide s-4obj">
+  <div class="label">Объекты</div>
+  <h2>4 бизнес-центра класса <strong>А</strong> в одном квартале</h2>
+  <div class="obj-grid">
+    <div class="obj-card"><div class="obj-n">Объект 1</div><div class="obj-name">STONE Ходынка 1</div><div class="obj-date">Ввод: <strong>IV кв. 2027</strong></div><span class="obj-pill">Ближайший ввод</span><div class="obj-note">Башни H1, H2, H3 · Офисы + ритейл 1–2 эт.</div></div>
+    <div class="obj-card"><div class="obj-n">Объект 2</div><div class="obj-name">STONE Ходынка 2</div><div class="obj-date">Ввод: <strong>IV кв. 2028</strong></div><span class="obj-pill">В продаже</span><div class="obj-note">Коммерческие лоты на всех этажах</div></div>
+    <div class="obj-card"><div class="obj-n">Объект 3</div><div class="obj-name">STONE Ходынка 3</div><div class="obj-date">Ввод: <strong>IV кв. 2029</strong></div><span class="obj-pill">ОСЗ</span><div class="obj-note">Отдельно стоящее здание · Крупные лоты</div></div>
+    <div class="obj-card"><div class="obj-n">Объект 4</div><div class="obj-name">STONE Ходынка 4</div><div class="obj-date">Ввод: <strong>I кв. 2032</strong></div><span class="obj-pill">Инвестиционный</span><div class="obj-note">Башня · Долгосрочная инвестиция</div></div>
+  </div>
+</section>
+
+<!-- 6. 1ST FLOOR PLAN -->
+<section class="slide s-floor">
+  <div class="s-floor-left">
+    <div class="label">Приоритет · 1 Этаж · STONE Ходынка 1</div>
+    <h2>Помещения<br><strong>первого этажа</strong></h2>
+    <p style="margin-top:10px;font-size:13px;color:#888;line-height:1.6;">Форматы под ресторан / ритейл.<br>Отдельные входы. Прямой выход к м. ЦСКА.</p>
+    <table class="lots-tbl">
+      <thead><tr><th>Лот</th><th>Площадь</th><th>₽ / м²</th><th>Стоимость</th><th>Статус</th></tr></thead>
+      <tbody>
+        <tr class="hi"><td><div class="lot-n">R2-101</div><div class="lot-sub">Ресторан</div></td><td>184,4 м²</td><td>2 160 000 ₽</td><td><div class="price-main">398,3 млн</div></td><td><span class="st-badge">В продаже</span></td></tr>
+        <tr><td><div class="lot-n">R2-109</div><div class="lot-sub">Ресторан</div></td><td>320,8 м²</td><td>1 960 000 ₽</td><td><div class="price-main">628,8 млн</div></td><td><span class="st-badge">В продаже</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="s-floor-img"><img src="stone_floor1.jpg" alt="Планировка 1 этажа"></div>
+</section>
+
+<!-- 7. ₽/М² 1 ЭТАЖ STONE -->
+<section class="slide s-psm">
+  <div class="label">Стоимость квадратного метра · 1 Этаж · STONE Ходынка</div>
+  <h2>Цена м² на <strong>первом этаже</strong></h2>
+  <div class="psm-grid">
+    <div class="psm-card featured">
+      <div class="psm-lot">R2-101 · Ресторан</div>
+      <div class="psm-type">Ресторанный формат</div>
+      <div class="psm-area">Площадь: 184,4 м² · 1 этаж</div>
+      <div class="psm-num">2 160 000</div>
+      <div class="psm-unit">₽ за м²</div>
+      <div class="psm-divider"></div>
+      <div class="psm-total">Стоимость лота: <strong>398,3 млн ₽</strong></div>
+      <br><span class="st-badge">В продаже</span>
+    </div>
+    <div class="psm-card">
+      <div class="psm-lot">R2-109 · Ресторан</div>
+      <div class="psm-type">Ресторанный формат</div>
+      <div class="psm-area">Площадь: 320,8 м² · 1 этаж</div>
+      <div class="psm-num">1 960 000</div>
+      <div class="psm-unit">₽ за м²</div>
+      <div class="psm-divider"></div>
+      <div class="psm-total">Стоимость лота: <strong>628,8 млн ₽</strong></div>
+      <br><span class="st-badge">В продаже</span>
+    </div>
+  </div>
+  <div class="avg-bar">
+    <div><div class="avg-bar-lbl">Средняя цена м² · 1 этаж · STONE Ходынка</div><div class="avg-bar-sub">Среднее по 2 лотам первого этажа</div></div>
+    <div style="text-align:right;"><div class="avg-bar-val">2 060 000 ₽/м²</div></div>
+  </div>
+</section>
+
+<!-- 8. 3RD FLOOR TABLE -->
+<section class="slide s-3floor">
+  <div class="s-3floor-img"><img src="stone_floor3.jpg" alt="Планировка 3 этажа"></div>
+  <div class="s-3floor-right">
+    <div class="label">3 Этаж · Ходынка 1 и 3</div>
+    <h2>Лоты <strong>130–180 млн ₽</strong><br>на третьем этаже</h2>
+    <table class="lots-tbl" style="margin-top:22px;">
+      <thead><tr><th>Лот</th><th>Площадь</th><th>₽ / м²</th><th>Стоимость</th><th>Статус</th></tr></thead>
+      <tbody>
+        <tr class="hi"><td><div class="lot-n">CO1-308</div><div class="lot-sub">Ходынка 1</div></td><td>291,8 м²</td><td>616 000 ₽</td><td><div class="price-main">179,7 млн</div></td><td><span class="st-badge">В продаже</span></td></tr>
+        <tr><td><div class="lot-n">CO1-306</div><div class="lot-sub">Ходынка 1</div></td><td>208,6 м²</td><td>631 000 ₽</td><td><div class="price-main">131,6 млн</div></td><td><span class="st-badge">В продаже</span></td></tr>
+        <tr class="hi"><td><div class="lot-n">CO3-301</div><div class="lot-sub">Ходынка 3</div></td><td>250,2 м²</td><td>645 000 ₽</td><td><div class="price-main">161,4 млн</div></td><td><span class="st-badge">В продаже</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 9. ₽/М² 3 ЭТАЖ STONE -->
+<section class="slide s-psm" style="background:#f8f7f3;">
+  <div class="label">Стоимость квадратного метра · 3 Этаж · STONE Ходынка</div>
+  <h2>Цена м² на <strong>третьем этаже</strong></h2>
+  <div class="psm-grid">
+    <div class="psm-card featured" style="background:#fff;">
+      <div class="psm-lot">CO1-308 · Ходынка 1</div>
+      <div class="psm-type">Офис / 3 этаж</div>
+      <div class="psm-area">Площадь: 291,8 м² · 3 этаж</div>
+      <div class="psm-num">616 000</div>
+      <div class="psm-unit">₽ за м²</div>
+      <div class="psm-divider"></div>
+      <div class="psm-total">Стоимость лота: <strong>179,7 млн ₽</strong></div>
+      <br><span class="st-badge">В продаже</span>
+    </div>
+    <div class="psm-card" style="background:#f8f7f3;">
+      <div class="psm-lot">CO1-306 · Ходынка 1</div>
+      <div class="psm-type">Офис / 3 этаж</div>
+      <div class="psm-area">Площадь: 208,6 м² · 3 этаж</div>
+      <div class="psm-num">631 000</div>
+      <div class="psm-unit">₽ за м²</div>
+      <div class="psm-divider"></div>
+      <div class="psm-total">Стоимость лота: <strong>131,6 млн ₽</strong></div>
+      <br><span class="st-badge">В продаже</span>
+    </div>
+    <div class="psm-card" style="background:#f8f7f3;">
+      <div class="psm-lot">CO3-301 · Ходынка 3</div>
+      <div class="psm-type">Офис / 3 этаж</div>
+      <div class="psm-area">Площадь: 250,2 м² · 3 этаж</div>
+      <div class="psm-num">645 000</div>
+      <div class="psm-unit">₽ за м²</div>
+      <div class="psm-divider"></div>
+      <div class="psm-total">Стоимость лота: <strong>161,4 млн ₽</strong></div>
+      <br><span class="st-badge">В продаже</span>
+    </div>
+    <div style="background:#fff;border:1px solid #B8913A;border-radius:8px;padding:32px 28px;display:flex;flex-direction:column;justify-content:center;box-shadow:0 4px 32px rgba(184,145,58,0.1);">
+      <div style="font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:#888;margin-bottom:8px;">Среднее по 3 лотам</div>
+      <div style="font-size:13px;color:#555;margin-bottom:12px;">3 этаж · STONE Ходынка 1 и 3</div>
+      <div style="font-size:48px;font-weight:800;color:#B8913A;letter-spacing:-2px;line-height:1;">631 000</div>
+      <div style="font-size:14px;color:#aaa;margin-top:6px;">₽ за м² (среднее)</div>
+      <div style="width:40px;height:2px;background:#e8e4da;margin:16px 0;"></div>
+      <div style="font-size:12px;color:#888;">CO1-308 / CO1-306 / CO3-301</div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. КРАСНОАРМЕЙСКАЯ 11 — СТРОЯЩИЙСЯ (moved here) -->
+<section class="slide obj-slide" style="background:#fff;">
+  <div class="photo-area">
+    <div class="photo-main-wrap"><img class="photo-main-img" src="cian_photos/krasnoarm11_0.jpg" alt="Красноармейская 11"></div>
+    <div class="photo-strip">
+      <img class="photo-thumb active" src="cian_photos/krasnoarm11_0.jpg">
+      <img class="photo-thumb" src="cian_photos/krasnoarm11_1.jpg">
+      <img class="photo-thumb" src="cian_photos/krasnoarm11_2.jpg">
+    </div>
+  </div>
+  <div class="obj-info">
+    <div class="label">Строящийся объект · Торговая площадь</div>
+    <h2>Красноармейская<br><strong>улица, 11</strong></h2>
+    <p style="margin-top:8px;font-size:13px;color:#888;">Торговая площадь · 1 этаж · м. Аэропорт 10 мин.</p>
+    <div class="obj-data-grid">
+      <div class="data-card-w"><div class="card-lbl">Стоимость</div><div class="card-val">217,9 млн</div><div class="card-sub">₽</div></div>
+      <div class="data-card-w"><div class="card-lbl">Цена м²</div><div class="card-val">1 200 000</div><div class="card-sub">₽ / м²</div></div>
+      <div class="data-card-w"><div class="card-lbl">Площадь</div><div class="card-val">181,6 м²</div><div class="card-sub">Первый этаж</div></div>
+      <div class="data-card-w"><div class="card-lbl">Этаж / Этажей</div><div class="card-val">1 / 21</div><div class="card-sub">Торговая площадь</div></div>
+    </div>
+    <div class="cian-row">
+      <span class="build-badge">Строящийся · Ввод I кв. 2029</span>
+      <a href="https://www.cian.ru/sale/commercial/329470163/" target="_blank" class="cian-link">cian.ru · объявление 329470163 ↗</a>
+    </div>
+  </div>
+</section>
+
+<!-- 11. SECTION: ГОТОВЫЕ -->
+<section class="slide section-div">
+  <div style="font-size:11px;letter-spacing:5px;text-transform:uppercase;color:#B8913A;margin-bottom:20px;">Раздел 02</div>
+  <h1 style="font-size:78px;font-weight:800;color:#fff;letter-spacing:-3px;line-height:1;font-family:inherit;">Готовые<br><strong>объекты</strong></h1>
+  <p style="font-size:16px;color:rgba(255,255,255,0.45);margin-top:28px;max-width:500px;line-height:1.75;">13 готовых коммерческих объектов в радиусе ~3 км от ЖК Лайнер. Торговые площади, офисы, своб. назначение — от 49,9 до 609 млн ₽.</p>
+  <div style="margin-top:36px;display:flex;gap:12px;flex-wrap:wrap;">
+    <span class="tag">13 объектов</span>
+    <span class="tag">49,9 — 609 млн ₽</span>
+    <span class="tag">110 — 1 691 м²</span>
+    <span class="tag">Готово к сделке</span>
+  </div>
+  <div class="s-num">02</div>
+</section>
+
+
+<!-- 13. Ходынский бульвар, 2 -->
+<section class="slide obj-slide" style="background:#fff;">
+  <div class="photo-area">
+    <div class="photo-main-wrap"><img class="photo-main-img" src="cian_photos/liner_bul2_0.jpg" alt="Ходынский бульвар 2"></div>
+    <div class="photo-strip">
+      <img class="photo-thumb active" src="cian_photos/liner_bul2_0.jpg">
+      <img class="photo-thumb" src="cian_photos/liner_bul2_1.jpg">
+      <img class="photo-thumb" src="cian_photos/liner_bul2_2.jpg">
+    </div>
+  </div>
+  <div class="obj-info">
+    <div class="label">Готовый объект · Своб. назначения · Лайнер</div>
+    <h2>Ходынский<br><strong>бульвар, 2</strong></h2>
+    <p style="margin-top:8px;font-size:13px;color:#888;">Своб. назначения · 1 этаж · м. ЦСКА 6 мин.</p>
+    <div class="obj-data-grid">
+      <div class="data-card-w"><div class="card-lbl">Стоимость</div><div class="card-val">59,8 млн</div><div class="card-sub">₽</div></div>
+      <div class="data-card-w"><div class="card-lbl">Цена м²</div><div class="card-val">314 737</div><div class="card-sub">₽ / м²</div></div>
+      <div class="data-card-w"><div class="card-lbl">Площадь</div><div class="card-val">190 м²</div><div class="card-sub">Первый этаж</div></div>
+      <div class="data-card-w"><div class="card-lbl">Этаж / Этажей</div><div class="card-val">1 / 15</div><div class="card-sub">Своб. назначения · УСН</div></div>
+    </div>
+    <div class="cian-row"><span class="st-badge">В продаже</span><a href="https://www.cian.ru/sale/commercial/330140471/" target="_blank" class="cian-link">cian.ru · 330140471 ↗</a></div>
+  </div>
+</section>
+
+<!-- 14. Ходынский бульвар, 6с1 -->
+<section class="slide obj-slide" style="background:#f8f7f3;">
+  <div class="photo-area">
+    <div class="photo-main-wrap"><img class="photo-main-img" src="cian_photos/liner_bul6_0.jpg" alt="Ходынский бульвар 6с1"></div>
+    <div class="photo-strip">
+      <img class="photo-thumb active" src="cian_photos/liner_bul6_0.jpg">
+      <img class="photo-thumb" src="cian_photos/liner_bul6_1.jpg">
+      <img class="photo-thumb" src="cian_photos/liner_bul6_2.jpg">
+    </div>
+  </div>
+  <div class="obj-info">
+    <div class="label">Готовый объект · Офис</div>
+    <h2>Ходынский<br><strong>бульвар, 6с1</strong></h2>
+    <p style="margin-top:8px;font-size:13px;color:#888;">Офис · 1 этаж · м. ЦСКА 2 мин.</p>
+    <div class="obj-data-grid">
+      <div class="data-card-c"><div class="card-lbl">Стоимость</div><div class="card-val">609 млн</div><div class="card-sub">₽ · Включая НДС</div></div>
+      <div class="data-card-c"><div class="card-lbl">Цена м²</div><div class="card-val">1 903 125</div><div class="card-sub">₽ / м²</div></div>
+      <div class="data-card-c"><div class="card-lbl">Площадь</div><div class="card-val">320 м²</div><div class="card-sub">Первый этаж</div></div>
+      <div class="data-card-c"><div class="card-lbl">Этаж / Этажей</div><div class="card-val">1 / 22</div><div class="card-sub">Офис · Включая НДС</div></div>
+    </div>
+    <div class="cian-row"><span class="st-badge">В продаже</span><a href="https://www.cian.ru/sale/commercial/324259769/" target="_blank" class="cian-link">cian.ru · 324259769 ↗</a></div>
+  </div>
+</section>
+
+<!-- 15. Ленинградский проспект, 44 -->
+<section class="slide obj-slide" style="background:#fff;">
+  <div class="photo-area">
+    <div class="photo-main-wrap"><img class="photo-main-img" src="cian_photos/lenpro44_0.jpg" alt="Ленинградский проспект 44"></div>
+    <div class="photo-strip">
+      <img class="photo-thumb active" src="cian_photos/lenpro44_0.jpg">
+      <img class="photo-thumb" src="cian_photos/lenpro44_1.jpg">
+      <img class="photo-thumb" src="cian_photos/lenpro44_2.jpg">
+    </div>
+  </div>
+  <div class="obj-info">
+    <div class="label">Готовый объект · Торговая площадь</div>
+    <h2>Ленинградский<br><strong>проспект, 44</strong></h2>
+    <p style="margin-top:8px;font-size:13px;color:#888;">Торговая площадь · 1 этаж · м. Динамо 11 мин.</p>
+    <div class="obj-data-grid">
+      <div class="data-card-w"><div class="card-lbl">Стоимость</div><div class="card-val">65 млн</div><div class="card-sub">₽ · УСН</div></div>
+      <div class="data-card-w"><div class="card-lbl">Цена м²</div><div class="card-val">349 463</div><div class="card-sub">₽ / м²</div></div>
+      <div class="data-card-w"><div class="card-lbl">Площадь</div><div class="card-val">186 м²</div><div class="card-sub">Первый этаж</div></div>
+      <div class="data-card-w"><div class="card-lbl">Этаж / Этажей</div><div class="card-val">1 / 6</div><div class="card-sub">Торговая площадь</div></div>
+    </div>
+    <div class="cian-row"><span class="st-badge">В продаже</span><a href="https://www.cian.ru/sale/commercial/330215341/" target="_blank" class="cian-link">cian.ru · 330215341 ↗</a></div>
+  </div>
+</section>
+
+<!-- 16. Беговая аллея, 5К2 -->
+<section class="slide obj-slide" style="background:#f8f7f3;">
+  <div class="photo-area">
+    <div class="photo-main-wrap"><img class="photo-main-img" src="cian_photos/begovaya5_0.jpg" alt="Беговая аллея 5К2"></div>
+    <div class="photo-strip">
+      <img class="photo-thumb active" src="cian_photos/begovaya5_0.jpg">
+      <img class="photo-thumb" src="cian_photos/begovaya5_1.jpg">
+      <img class="photo-thumb" src="cian_photos/begovaya5_2.jpg">
+    </div>
+  </div>
+  <div class="obj-info">
+    <div class="label">Готовый объект · Своб. назначения</div>
+    <h2>Беговая<br><strong>аллея, 5К2</strong></h2>
+    <p style="margin-top:8px;font-size:13px;color:#888;">Своб. назначения · 1 этаж · м. Белорусская 17 мин.</p>
+    <div class="obj-data-grid">
+      <div class="data-card-c"><div class="card-lbl">Стоимость</div><div class="card-val">49,9 млн</div><div class="card-sub">₽ · УСН</div></div>
+      <div class="data-card-c"><div class="card-lbl">Цена м²</div><div class="card-val">453 637</div><div class="card-sub">₽ / м²</div></div>
+      <div class="data-card-c"><div class="card-lbl">Площадь</div><div class="card-val">110 м²</div><div class="card-sub">Первый этаж</div></div>
+      <div class="data-card-c"><div class="card-lbl">Этаж / Этажей</div><div class="card-val">1 / 9</div><div class="card-sub">Своб. назначения</div></div>
+    </div>
+    <div class="cian-row"><span class="st-badge">В продаже</span><a href="https://www.cian.ru/sale/commercial/321578498/" target="_blank" class="cian-link">cian.ru · 321578498 ↗</a></div>
+  </div>
+</section>
+
+<!-- 17. Ленинградский проспект, 29к1 -->
+<section class="slide obj-slide" style="background:#fff;">
+  <div class="photo-area">
+    <div class="photo-main-wrap"><img class="photo-main-img" src="cian_photos/lenpro29_0.jpg" alt="Ленинградский проспект 29к1"></div>
+    <div class="photo-strip">
+      <img class="photo-thumb active" src="cian_photos/lenpro29_0.jpg">
+      <img class="photo-thumb" src="cian_photos/lenpro29_1.jpg">
+      <img class="photo-thumb" src="cian_photos/lenpro29_2.jpg">
+    </div>
+  </div>
+  <div class="obj-info">
+    <div class="label">Готовый объект · Своб. назначения · ★ Аналог ~320 м²</div>
+    <h2>Ленинградский<br><strong>проспект, 29к1</strong></h2>
+    <p style="margin-top:8px;font-size:13px;color:#888;">Своб. назначения · 1 этаж · м. Динамо 6 мин.</p>
+    <div class="obj-data-grid">
+      <div class="data-card-w"><div class="card-lbl">Стоимость</div><div class="card-val">195 млн</div><div class="card-sub">₽ · УСН</div></div>
+      <div class="data-card-w"><div class="card-lbl">Цена м²</div><div class="card-val">770 751</div><div class="card-sub">₽ / м²</div></div>
+      <div class="data-card-w"><div class="card-lbl">Площадь</div><div class="card-val">253 м²</div><div class="card-sub">Первый этаж</div></div>
+      <div class="data-card-w"><div class="card-lbl">Этаж / Этажей</div><div class="card-val">1 / 19</div><div class="card-sub">Своб. назначения</div></div>
+    </div>
+    <div class="cian-row"><span class="st-badge">В продаже</span><a href="https://www.cian.ru/sale/commercial/330624244/" target="_blank" class="cian-link">cian.ru · 330624244 ↗</a></div>
+  </div>
+</section>
+
+<!-- 18. Ленинградский проспект, 52 -->
+<section class="slide obj-slide" style="background:#f8f7f3;">
+  <div class="photo-area">
+    <div class="photo-main-wrap"><img class="photo-main-img" src="cian_photos/lenpro52_0.jpg" alt="Ленинградский проспект 52"></div>
+    <div class="photo-strip">
+      <img class="photo-thumb active" src="cian_photos/lenpro52_0.jpg">
+      <img class="photo-thumb" src="cian_photos/lenpro52_1.jpg">
+      <img class="photo-thumb" src="cian_photos/lenpro52_2.jpg">
+    </div>
+  </div>
+  <div class="obj-info">
+    <div class="label">Готовый объект · Своб. назначения</div>
+    <h2>Ленинградский<br><strong>проспект, 52</strong></h2>
+    <p style="margin-top:8px;font-size:13px;color:#888;">Своб. назначения · 1 этаж · м. Аэропорт 7 мин.</p>
+    <div class="obj-data-grid">
+      <div class="data-card-c"><div class="card-lbl">Стоимость</div><div class="card-val">341,6 млн</div><div class="card-sub">₽ · Включая НДС</div></div>
+      <div class="data-card-c"><div class="card-lbl">Цена м²</div><div class="card-val">202 035</div><div class="card-sub">₽ / м²</div></div>
+      <div class="data-card-c"><div class="card-lbl">Площадь</div><div class="card-val">1 690,8 м²</div><div class="card-sub">Первый этаж</div></div>
+      <div class="data-card-c"><div class="card-lbl">Этаж / Этажей</div><div class="card-val">1 / 14</div><div class="card-sub">Своб. назначения</div></div>
+    </div>
+    <div class="cian-row"><span class="st-badge">В продаже</span><a href="https://www.cian.ru/sale/commercial/327765443/" target="_blank" class="cian-link">cian.ru · 327765443 ↗</a></div>
+  </div>
+</section>
+
+<!-- 19. Ленинградский проспект, 47 -->
+<section class="slide obj-slide" style="background:#fff;">
+  <div class="photo-area">
+    <div class="photo-main-wrap"><img class="photo-main-img" src="cian_photos/lenpro47_0.jpg" alt="Ленинградский проспект 47"></div>
+    <div class="photo-strip">
+      <img class="photo-thumb active" src="cian_photos/lenpro47_0.jpg">
+      <img class="photo-thumb" src="cian_photos/lenpro47_1.jpg">
+      <img class="photo-thumb" src="cian_photos/lenpro47_2.jpg">
+    </div>
+  </div>
+  <div class="obj-info">
+    <div class="label">Готовый объект · Торговая площадь</div>
+    <h2>Ленинградский<br><strong>проспект, 47</strong></h2>
+    <p style="margin-top:8px;font-size:13px;color:#888;">Торговая площадь · 1 этаж · м. Аэропорт 1 мин.</p>
+    <div class="obj-data-grid">
+      <div class="data-card-w"><div class="card-lbl">Стоимость</div><div class="card-val">79 млн</div><div class="card-sub">₽ · УСН</div></div>
+      <div class="data-card-w"><div class="card-lbl">Цена м²</div><div class="card-val">484 366</div><div class="card-sub">₽ / м²</div></div>
+      <div class="data-card-w"><div class="card-lbl">Площадь</div><div class="card-val">163,1 м²</div><div class="card-sub">Первый этаж</div></div>
+      <div class="data-card-w"><div class="card-lbl">Этаж / Этажей</div><div class="card-val">1 / 4</div><div class="card-sub">Торговая площадь</div></div>
+    </div>
+    <div class="cian-row"><span class="st-badge">В продаже</span><a href="https://www.cian.ru/sale/commercial/330925170/" target="_blank" class="cian-link">cian.ru · 330925170 ↗</a></div>
+  </div>
+</section>
+
+<!-- 20. Чапаевский переулок, 3 -->
+<section class="slide obj-slide" style="background:#f8f7f3;">
+  <div class="photo-area">
+    <div class="photo-main-wrap"><img class="photo-main-img" src="cian_photos/chapaevskyper_0.jpg" alt="Чапаевский переулок 3"></div>
+    <div class="photo-strip">
+      <img class="photo-thumb active" src="cian_photos/chapaevskyper_0.jpg">
+      <img class="photo-thumb" src="cian_photos/chapaevskyper_1.jpg">
+      <img class="photo-thumb" src="cian_photos/chapaevskyper_2.jpg">
+    </div>
+  </div>
+  <div class="obj-info">
+    <div class="label">Готовый объект · Офис класс А</div>
+    <h2>Чапаевский<br><strong>переулок, 3</strong></h2>
+    <p style="margin-top:8px;font-size:13px;color:#888;">Офис класс А · 1 этаж · м. Сокол 10 мин.</p>
+    <div class="obj-data-grid">
+      <div class="data-card-c"><div class="card-lbl">Стоимость</div><div class="card-val">139 млн</div><div class="card-sub">₽ · УСН</div></div>
+      <div class="data-card-c"><div class="card-lbl">Цена м²</div><div class="card-val">602 254</div><div class="card-sub">₽ / м²</div></div>
+      <div class="data-card-c"><div class="card-lbl">Площадь</div><div class="card-val">230,8 м²</div><div class="card-sub">Первый этаж</div></div>
+      <div class="data-card-c"><div class="card-lbl">Этаж / Этажей</div><div class="card-val">1 / 30</div><div class="card-sub">Офис класс А</div></div>
+    </div>
+    <div class="cian-row"><span class="st-badge">В продаже</span><a href="https://www.cian.ru/sale/commercial/325162843/" target="_blank" class="cian-link">cian.ru · 325162843 ↗</a></div>
+  </div>
+</section>
+
+<!-- 21. Улица Врубеля, 8 -->
+<section class="slide obj-slide" style="background:#fff;">
+  <div class="photo-area">
+    <div class="photo-main-wrap"><img class="photo-main-img" src="cian_photos/vrubelya8_0.jpg" alt="Врубеля 8"></div>
+    <div class="photo-strip">
+      <img class="photo-thumb active" src="cian_photos/vrubelya8_0.jpg">
+      <img class="photo-thumb" src="cian_photos/vrubelya8_1.jpg">
+      <img class="photo-thumb" src="cian_photos/vrubelya8_2.jpg">
+    </div>
+  </div>
+  <div class="obj-info">
+    <div class="label">Готовый объект · Офис класс В</div>
+    <h2>Улица<br><strong>Врубеля, 8</strong></h2>
+    <p style="margin-top:8px;font-size:13px;color:#888;">Офис класс B · 1 этаж · м. Сокол 16 мин.</p>
+    <div class="obj-data-grid">
+      <div class="data-card-w"><div class="card-lbl">Стоимость</div><div class="card-val">137 млн</div><div class="card-sub">₽ · УСН</div></div>
+      <div class="data-card-w"><div class="card-lbl">Цена м²</div><div class="card-val">713 542</div><div class="card-sub">₽ / м²</div></div>
+      <div class="data-card-w"><div class="card-lbl">Площадь</div><div class="card-val">192 м²</div><div class="card-sub">Первый этаж</div></div>
+      <div class="data-card-w"><div class="card-lbl">Этаж / Этажей</div><div class="card-val">1 / 30</div><div class="card-sub">Офис класс B</div></div>
+    </div>
+    <div class="cian-row"><span class="st-badge">В продаже</span><a href="https://www.cian.ru/sale/commercial/330385381/" target="_blank" class="cian-link">cian.ru · 330385381 ↗</a></div>
+  </div>
+</section>
+
+<!-- 22. Щукинская улица, 2 -->
+<section class="slide obj-slide" style="background:#f8f7f3;">
+  <div class="photo-area">
+    <div class="photo-main-wrap"><img class="photo-main-img" src="cian_photos/shchukinskaya2_0.jpg" alt="Щукинская 2"></div>
+    <div class="photo-strip">
+      <img class="photo-thumb active" src="cian_photos/shchukinskaya2_0.jpg">
+      <img class="photo-thumb" src="cian_photos/shchukinskaya2_1.jpg">
+      <img class="photo-thumb" src="cian_photos/shchukinskaya2_2.jpg">
+    </div>
+  </div>
+  <div class="obj-info">
+    <div class="label">Готовый объект · Своб. назначения · ★ Аналог ~320 м²</div>
+    <h2>Щукинская<br><strong>улица, 2</strong></h2>
+    <p style="margin-top:8px;font-size:13px;color:#888;">Своб. назначения · 1 этаж · м. Стрешнево 7 мин.</p>
+    <div class="obj-data-grid">
+      <div class="data-card-c"><div class="card-lbl">Стоимость</div><div class="card-val">147 млн</div><div class="card-sub">₽ · УСН</div></div>
+      <div class="data-card-c"><div class="card-lbl">Цена м²</div><div class="card-val">349 584</div><div class="card-sub">₽ / м²</div></div>
+      <div class="data-card-c"><div class="card-lbl">Площадь</div><div class="card-val">420,5 м²</div><div class="card-sub">Первый этаж</div></div>
+      <div class="data-card-c"><div class="card-lbl">Этаж / Этажей</div><div class="card-val">1 / 22</div><div class="card-sub">Своб. назначения</div></div>
+    </div>
+    <div class="cian-row"><span class="st-badge">В продаже</span><a href="https://www.cian.ru/sale/commercial/327244490/" target="_blank" class="cian-link">cian.ru · 327244490 ↗</a></div>
+  </div>
+</section>
+
+<!-- 23. Маршала Рыбалко, 2к6 -->
+<section class="slide obj-slide" style="background:#fff;">
+  <div class="photo-area">
+    <div class="photo-main-wrap"><img class="photo-main-img" src="cian_photos/rybalko2_0.jpg" alt="Рыбалко 2к6"></div>
+    <div class="photo-strip">
+      <img class="photo-thumb active" src="cian_photos/rybalko2_0.jpg">
+      <img class="photo-thumb" src="cian_photos/rybalko2_1.jpg">
+      <img class="photo-thumb" src="cian_photos/rybalko2_2.jpg">
+    </div>
+  </div>
+  <div class="obj-info">
+    <div class="label">Готовый объект · Арендный бизнес (ГАБ)</div>
+    <h2>Маршала<br><strong>Рыбалко, 2к6</strong></h2>
+    <p style="margin-top:8px;font-size:13px;color:#888;">Арендный бизнес · 1 этаж · м. Панфиловская 4 мин.</p>
+    <div class="obj-data-grid">
+      <div class="data-card-w"><div class="card-lbl">Стоимость</div><div class="card-val">189,1 млн</div><div class="card-sub">₽ · Доход 636 000 ₽/мес.</div></div>
+      <div class="data-card-w"><div class="card-lbl">Цена м²</div><div class="card-val">703 396</div><div class="card-sub">₽ / м²</div></div>
+      <div class="data-card-w"><div class="card-lbl">Площадь</div><div class="card-val">268,9 м²</div><div class="card-sub">Первый этаж</div></div>
+      <div class="data-card-w"><div class="card-lbl">Этаж / Этажей</div><div class="card-val">1 / 17</div><div class="card-sub">Арендный бизнес · ГАБ</div></div>
+    </div>
+    <div class="cian-row"><span class="st-badge">В продаже</span><a href="https://www.cian.ru/sale/commercial/291055893/" target="_blank" class="cian-link">cian.ru · 291055893 ↗</a></div>
+  </div>
+</section>
+
+<!-- 24. Сальвадора Альенде, 7 -->
+<section class="slide obj-slide" style="background:#f8f7f3;">
+  <div class="photo-area">
+    <div class="photo-main-wrap"><img class="photo-main-img" src="cian_photos/allende7_0.jpg" alt="Сальвадора Альенде 7"></div>
+    <div class="photo-strip">
+      <img class="photo-thumb active" src="cian_photos/allende7_0.jpg">
+      <img class="photo-thumb" src="cian_photos/allende7_1.jpg">
+      <img class="photo-thumb" src="cian_photos/allende7_2.jpg">
+    </div>
+  </div>
+  <div class="obj-info">
+    <div class="label">Готовый объект · Своб. назначения</div>
+    <h2>Сальвадора<br><strong>Альенде, 7</strong></h2>
+    <p style="margin-top:8px;font-size:13px;color:#888;">Своб. назначения · 1 этаж · м. Зорге 8 мин.</p>
+    <div class="obj-data-grid">
+      <div class="data-card-c"><div class="card-lbl">Стоимость</div><div class="card-val">99 млн</div><div class="card-sub">₽ · УСН</div></div>
+      <div class="data-card-c"><div class="card-lbl">Цена м²</div><div class="card-val">169 841</div><div class="card-sub">₽ / м²</div></div>
+      <div class="data-card-c"><div class="card-lbl">Площадь</div><div class="card-val">582,9 м²</div><div class="card-sub">Первый этаж</div></div>
+      <div class="data-card-c"><div class="card-lbl">Этаж / Этажей</div><div class="card-val">1 / 9</div><div class="card-sub">Своб. назначения</div></div>
+    </div>
+    <div class="cian-row"><span class="st-badge">В продаже</span><a href="https://www.cian.ru/sale/commercial/330918417/" target="_blank" class="cian-link">cian.ru · 330918417 ↗</a></div>
+  </div>
+</section>
+
+<!-- 25. Беговая улица, 18К2 -->
+<section class="slide obj-slide" style="background:#fff;">
+  <div class="photo-area">
+    <div class="photo-main-wrap"><img class="photo-main-img" src="cian_photos/begovaya18_0.jpg" alt="Беговая 18К2"></div>
+    <div class="photo-strip">
+      <img class="photo-thumb active" src="cian_photos/begovaya18_0.jpg">
+      <img class="photo-thumb" src="cian_photos/begovaya18_1.jpg">
+      <img class="photo-thumb" src="cian_photos/begovaya18_2.jpg">
+    </div>
+  </div>
+  <div class="obj-info">
+    <div class="label">Готовый объект · Офис класс В</div>
+    <h2>Беговая<br><strong>улица, 18К2</strong></h2>
+    <p style="margin-top:8px;font-size:13px;color:#888;">Офис класс B · 1 этаж · м. Беговая 11 мин.</p>
+    <div class="obj-data-grid">
+      <div class="data-card-w"><div class="card-lbl">Стоимость</div><div class="card-val">95 млн</div><div class="card-sub">₽ · УСН</div></div>
+      <div class="data-card-w"><div class="card-lbl">Цена м²</div><div class="card-val">232 274</div><div class="card-sub">₽ / м²</div></div>
+      <div class="data-card-w"><div class="card-lbl">Площадь</div><div class="card-val">409 м²</div><div class="card-sub">Первый этаж</div></div>
+      <div class="data-card-w"><div class="card-lbl">Этаж / Этажей</div><div class="card-val">1 / 14</div><div class="card-sub">Офис класс B</div></div>
+    </div>
+    <div class="cian-row"><span class="st-badge">В продаже</span><a href="https://www.cian.ru/sale/commercial/326191017/" target="_blank" class="cian-link">cian.ru · 326191017 ↗</a></div>
+  </div>
+</section>
+
+<!-- ПОСЛЕДНИЙ: СРАВНИТЕЛЬНАЯ СТОИМОСТЬ ₽/М² -->
+<section class="slide" style="background:#111;flex-direction:column;justify-content:center;align-items:flex-start;padding:48px 80px !important;">
+  <div style="font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#B8913A;margin-bottom:16px;">Итог анализа</div>
+  <div style="display:flex;align-items:baseline;gap:32px;margin-bottom:32px;">
+    <h2 style="color:#fff;font-size:28px;font-weight:300;letter-spacing:-0.5px;">Сравнительная стоимость <strong style="font-weight:800;">₽/м²</strong></h2>
+    <div style="font-size:11px;color:#555;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;">+ стоимость помещения 363 м²</div>
+  </div>
+
+  <!-- Заголовки колонок -->
+  <div style="display:grid;grid-template-columns:1fr 155px 160px;gap:20px;width:100%;max-width:980px;margin-bottom:10px;">
+    <div></div>
+    <div style="text-align:right;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#444;">₽ / м²</div>
+    <div style="text-align:right;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#444;padding-right:4px;">363 м² · млн ₽</div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:20px;width:100%;max-width:980px;">
+
+    <!-- STONE 1 этаж: 2 060 000 → 747,8 млн -->
+    <div style="display:grid;grid-template-columns:1fr 155px 160px;align-items:center;gap:20px;">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:#B8913A;flex-shrink:0;"></div>
+          <span style="font-size:11px;color:#999;letter-spacing:0.8px;text-transform:uppercase;">STONE Ходынка · 1 этаж · Ресторан / Ритейл</span>
+          <span style="font-size:10px;color:#666;padding:2px 7px;border:1px solid rgba(184,145,58,0.3);border-radius:2px;">2 лота</span>
+        </div>
+        <div style="height:7px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;">
+          <div style="height:100%;width:100%;background:linear-gradient(90deg,#B8913A,#d4b060);border-radius:4px;"></div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:20px;font-weight:800;color:#B8913A;letter-spacing:-0.5px;line-height:1;">2 060 000</div>
+        <div style="font-size:10px;color:#555;margin-top:2px;">₽ / м²</div>
+      </div>
+      <div style="text-align:right;padding:10px 14px;background:rgba(184,145,58,0.1);border-radius:6px;border:1px solid rgba(184,145,58,0.2);">
+        <div style="font-size:20px;font-weight:800;color:#B8913A;letter-spacing:-0.5px;line-height:1;">747,8</div>
+        <div style="font-size:10px;color:#555;margin-top:2px;">млн ₽</div>
+      </div>
+    </div>
+
+    <!-- Среднее строящихся: 1 202 000 → 436,3 млн -->
+    <div style="display:grid;grid-template-columns:1fr 155px 160px;align-items:center;gap:20px;">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:rgba(184,145,58,0.65);flex-shrink:0;"></div>
+          <span style="font-size:11px;color:#999;letter-spacing:0.8px;text-transform:uppercase;">Среднее строящихся · STONE + Красноармейская</span>
+          <span style="font-size:10px;color:#666;padding:2px 7px;border:1px solid rgba(184,145,58,0.25);border-radius:2px;">6 лотов</span>
+        </div>
+        <div style="height:7px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;">
+          <div style="height:100%;width:58.3%;background:rgba(184,145,58,0.55);border-radius:4px;"></div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:20px;font-weight:800;color:rgba(184,145,58,0.78);letter-spacing:-0.5px;line-height:1;">1 202 000</div>
+        <div style="font-size:10px;color:#555;margin-top:2px;">₽ / м²</div>
+      </div>
+      <div style="text-align:right;padding:10px 14px;background:rgba(184,145,58,0.07);border-radius:6px;border:1px solid rgba(184,145,58,0.15);">
+        <div style="font-size:20px;font-weight:800;color:rgba(184,145,58,0.7);letter-spacing:-0.5px;line-height:1;">436,3</div>
+        <div style="font-size:10px;color:#555;margin-top:2px;">млн ₽</div>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid rgba(255,255,255,0.07);margin:2px 0;"></div>
+
+    <!-- Рынок ближайшие: 478 000 → 173,5 млн -->
+    <div style="display:grid;grid-template-columns:1fr 155px 160px;align-items:center;gap:20px;">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:#4ade80;flex-shrink:0;"></div>
+          <span style="font-size:11px;color:#999;letter-spacing:0.8px;text-transform:uppercase;">Рынок · ближайшие аналоги</span>
+          <span style="font-size:10px;color:#666;padding:2px 7px;border:1px solid rgba(74,222,128,0.2);border-radius:2px;">~320 м² · ритейл · 1 эт. · 3 объекта</span>
+        </div>
+        <div style="height:7px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;">
+          <div style="height:100%;width:23.2%;background:#4ade80;border-radius:4px;"></div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:20px;font-weight:800;color:#4ade80;letter-spacing:-0.5px;line-height:1;">478 000</div>
+        <div style="font-size:10px;color:#555;margin-top:2px;">₽ / м²</div>
+      </div>
+      <div style="text-align:right;padding:10px 14px;background:rgba(74,222,128,0.07);border-radius:6px;border:1px solid rgba(74,222,128,0.15);">
+        <div style="font-size:20px;font-weight:800;color:#4ade80;letter-spacing:-0.5px;line-height:1;">173,5</div>
+        <div style="font-size:10px;color:#555;margin-top:2px;">млн ₽</div>
+      </div>
+    </div>
+
+    <!-- Рынок все: 558 000 → 202,6 млн -->
+    <div style="display:grid;grid-template-columns:1fr 155px 160px;align-items:center;gap:20px;">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:rgba(74,222,128,0.45);flex-shrink:0;"></div>
+          <span style="font-size:11px;color:#999;letter-spacing:0.8px;text-transform:uppercase;">Рынок · все объекты презентации</span>
+          <span style="font-size:10px;color:#666;padding:2px 7px;border:1px solid rgba(74,222,128,0.15);border-radius:2px;">13 готовых объектов · среднее</span>
+        </div>
+        <div style="height:7px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;">
+          <div style="height:100%;width:27.1%;background:rgba(74,222,128,0.4);border-radius:4px;"></div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:20px;font-weight:800;color:rgba(74,222,128,0.65);letter-spacing:-0.5px;line-height:1;">558 000</div>
+        <div style="font-size:10px;color:#555;margin-top:2px;">₽ / м²</div>
+      </div>
+      <div style="text-align:right;padding:10px 14px;background:rgba(74,222,128,0.05);border-radius:6px;border:1px solid rgba(74,222,128,0.1);">
+        <div style="font-size:20px;font-weight:800;color:rgba(74,222,128,0.6);letter-spacing:-0.5px;line-height:1;">202,6</div>
+        <div style="font-size:10px;color:#555;margin-top:2px;">млн ₽</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="margin-top:28px;padding:14px 20px;background:rgba(184,145,58,0.07);border-left:3px solid #B8913A;border-radius:0 4px 4px 0;max-width:980px;">
+    <div style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.75;">
+      <strong style="color:#B8913A;">Вывод:</strong> STONE Ходынка 1 этаж превышает рыночный уровень в <strong style="color:#e8c96a;">4,3×</strong> — инвестиционная премия строящегося класса А.
+      Среднее по всем строящимся объектам <strong style="color:#e8c96a;">2,5×</strong> выше рыночного уровня.
+      При площади 363 м² разница между STONE (1эт) и ближайшими аналогами составляет <strong style="color:#e8c96a;">574,3 млн ₽</strong>.
+    </div>
+  </div>
+</section>
+
+</div><!-- /slides -->
+
+<button class="nav-btn" id="prev">&#8592;</button>
+<button class="nav-btn" id="next">&#8594;</button>
+<div class="nav" id="dots"></div>
+<div class="slide-counter" id="ctr"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+// ── Photo carousels ───────────────────────────────────────────────
+document.querySelectorAll('.photo-thumb').forEach(thumb => {
+  thumb.addEventListener('click', () => {
+    const area = thumb.closest('.photo-area');
+    const mainImg = area.querySelector('.photo-main-img');
+    mainImg.style.opacity = '0.7';
+    mainImg.src = thumb.src;
+    mainImg.onload = () => { mainImg.style.opacity = '1'; };
+    area.querySelectorAll('.photo-thumb').forEach(t => t.classList.remove('active'));
+    thumb.classList.add('active');
+  });
+});
+
+// ── Navigation ────────────────────────────────────────────────────
+const slides = document.querySelectorAll('.slide');
+const dotsEl = document.getElementById('dots');
+const ctr    = document.getElementById('ctr');
+let cur = 0;
+let mapReady = false;
+
+slides.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.onclick = () => go(i);
+  dotsEl.appendChild(d);
+});
+
+function go(n) {
+  slides[cur].classList.remove('active');
+  slides[cur].style.display = 'none';
+  dotsEl.children[cur].classList.remove('active');
+  cur = (n + slides.length) % slides.length;
+  slides[cur].classList.add('active');
+  slides[cur].style.display = 'flex';
+  dotsEl.children[cur].classList.add('active');
+  ctr.textContent = (cur + 1) + ' / ' + slides.length;
+  if (slides[cur] === document.getElementById('map-slide')) {
+    if (!mapReady) { initMap(); mapReady = true; }
+    else setTimeout(() => leafletMap && leafletMap.invalidateSize(), 80);
+  }
+}
+
+slides.forEach((s, i) => { if (i !== 0) s.style.display = 'none'; });
+ctr.textContent = '1 / ' + slides.length;
+
+document.getElementById('prev').onclick = () => go(cur - 1);
+document.getElementById('next').onclick = () => go(cur + 1);
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(cur + 1);
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   go(cur - 1);
+});
+
+// ── Map ───────────────────────────────────────────────────────────
+let leafletMap;
+
+function mkPin(color, size) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.35);"></div>`,
+    iconSize: [size, size], iconAnchor: [size/2, size/2], popupAnchor: [0, -size/2-4]
+  });
+}
+function mkSquare(color) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:16px;height:16px;border-radius:3px;background:${color};border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.35);"></div>`,
+    iconSize: [16,16], iconAnchor: [8,8], popupAnchor: [0,-12]
+  });
+}
+
+// Координаты получены через Nominatim (OpenStreetMap) + ручная коррекция для STONE и Красноармейской
+const OBJS = [
+  { lat:55.7888,lng:37.5295,type:'new', name:'STONE Ходынка',         addr:'Хорошевское ш., вл. 2',    price:'от 130 млн ₽',   area:'184–1 691 м²',  psm:'616 000 – 2 160 000', cian:null },
+  { lat:55.8037,lng:37.5348,type:'new', name:'Красноармейская ул., 11',addr:'Красноармейская ул., 11',  price:'217,9 млн ₽',    area:'181,6 м²',      psm:'1 200 000',           cian:'329470163', note:'Ввод I кв. 2029' },
+  { lat:55.7884,lng:37.5379,type:'ready',name:'Ходынский бул., 2',    addr:'Ходынский бульвар, 2',     price:'59,8 млн ₽',     area:'190 м²',        psm:'314 737',             cian:'330140471' },
+  { lat:55.7870,lng:37.5379,type:'ready',name:'Ходынский бул., 6с1',  addr:'Ходынский бульвар, 6с1',   price:'609 млн ₽',      area:'320 м²',        psm:'1 903 125',           cian:'324259769' },
+  { lat:55.7940,lng:37.5472,type:'ready',name:'Ленинградский пр-т, 44',addr:'Ленинградский пр-т, 44', price:'65 млн ₽',       area:'186 м²',        psm:'349 463',             cian:'330215341' },
+  { lat:55.7820,lng:37.5642,type:'ready',name:'Беговая аллея, 5К2',   addr:'Беговая аллея, 5К2',       price:'49,9 млн ₽',     area:'110 м²',        psm:'453 637',             cian:'321578498' },
+  { lat:55.7852,lng:37.5627,type:'ready',name:'Ленинградский пр-т, 29к1',addr:'Ленинградский пр-т, 29к1',price:'195 млн ₽',   area:'253 м²',        psm:'770 751',             cian:'330624244' },
+  { lat:55.7973,lng:37.5408,type:'ready',name:'Ленинградский пр-т, 52',addr:'Ленинградский пр-т, 52',  price:'341,6 млн ₽',    area:'1 690,8 м²',    psm:'202 035',             cian:'327765443' },
+  { lat:55.7997,lng:37.5308,type:'ready',name:'Ленинградский пр-т, 47',addr:'Ленинградский пр-т, 47',  price:'79 млн ₽',       area:'163,1 м²',      psm:'484 366',             cian:'330925170' },
+  { lat:55.7982,lng:37.5204,type:'ready',name:'Чапаевский пер., 3',   addr:'Чапаевский пер., 3',       price:'139 млн ₽',      area:'230,8 м²',      psm:'602 254',             cian:'325162843' },
+  { lat:55.8058,lng:37.4989,type:'ready',name:'Врубеля ул., 8',        addr:'Врубеля ул., 8',           price:'137 млн ₽',      area:'192 м²',        psm:'713 542',             cian:'330385381' },
+  { lat:55.8095,lng:37.4833,type:'ready',name:'Щукинская ул., 2',      addr:'Щукинская ул., 2',         price:'147 млн ₽',      area:'420,5 м²',      psm:'349 584',             cian:'327244490' },
+  { lat:55.7978,lng:37.4964,type:'ready',name:'Маршала Рыбалко, 2к6', addr:'Маршала Рыбалко, 2к6',     price:'189,1 млн ₽',    area:'268,9 м²',      psm:'703 396',             cian:'291055893' },
+  { lat:55.7946,lng:37.5075,type:'ready',name:'Сальвадора Альенде, 7', addr:'Сальвадора Альенде, 7',    price:'99 млн ₽',       area:'582,9 м²',      psm:'169 841',             cian:'330918417' },
+  { lat:55.7776,lng:37.5580,type:'ready',name:'Беговая ул., 18К2',     addr:'Беговая ул., 18К2',        price:'95 млн ₽',       area:'409 м²',        psm:'232 274',             cian:'326191017' },
+];
+
+function initMap() {
+  leafletMap = L.map('map',{zoomControl:true,scrollWheelZoom:true}).setView([55.7940,37.5250],13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:19}).addTo(leafletMap);
+
+  L.marker([55.7907,37.5232],{icon:mkSquare('#16a34a')}).addTo(leafletMap)
+    .bindPopup(`<div style="font-family:'Helvetica Neue',Arial,sans-serif;min-width:170px;"><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#16a34a;margin-bottom:4px;">Ориентир</div><div style="font-size:15px;font-weight:700;">ЖК Лайнер</div><div style="font-size:12px;color:#888;margin-top:3px;">Ходынский бульвар, 20А</div></div>`);
+
+  OBJS.forEach(o => {
+    const color = o.type === 'new' ? '#B8913A' : '#2563eb';
+    const sz    = o.type === 'new' ? 22 : 16;
+    const cianBtn = o.cian ? `<div style="margin-top:10px;"><a href="https://www.cian.ru/sale/commercial/${o.cian}/" target="_blank" style="font-size:12px;color:#2563eb;text-decoration:none;">Открыть на cian.ru ↗</a></div>` : '';
+    const noteHtml = o.note ? `<div style="font-size:11px;color:#B8913A;margin-top:6px;">${o.note}</div>` : '';
+    const popup = `<div style="font-family:'Helvetica Neue',Arial,sans-serif;min-width:220px;padding:2px 0;">
+      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:${color};margin-bottom:4px;">${o.type==='new'?'🏗 Строящийся':'✅ Готовый'}</div>
+      <div style="font-size:15px;font-weight:700;line-height:1.3;">${o.name}</div>
+      <div style="font-size:12px;color:#888;margin-top:4px;margin-bottom:10px;">${o.addr}</div>${noteHtml}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;">
+        <div style="background:#f8f7f3;border-radius:4px;padding:8px 10px;"><div style="font-size:9px;color:#B8913A;letter-spacing:1.5px;text-transform:uppercase;">Цена</div><div style="font-size:13px;font-weight:700;color:#1a1a1a;">${o.price}</div></div>
+        <div style="background:#f8f7f3;border-radius:4px;padding:8px 10px;"><div style="font-size:9px;color:#B8913A;letter-spacing:1.5px;text-transform:uppercase;">Площадь</div><div style="font-size:13px;font-weight:700;color:#1a1a1a;">${o.area}</div></div>
+        <div style="background:#f8f7f3;border-radius:4px;padding:8px 10px;grid-column:1/-1;"><div style="font-size:9px;color:#B8913A;letter-spacing:1.5px;text-transform:uppercase;">₽ / м²</div><div style="font-size:13px;font-weight:700;color:#1a1a1a;">${o.psm}</div></div>
+      </div>${cianBtn}</div>`;
+    const shortName = o.name
+      .replace('Ленинградский пр-т, ','Лен. пр-т ')
+      .replace('бульвар','бул.')
+      .replace('улица','ул.')
+      .replace('переулок','пер.')
+      .replace('аллея','ал.');
+    L.marker([o.lat,o.lng],{icon:mkPin(color,sz)})
+      .addTo(leafletMap)
+      .bindPopup(popup,{maxWidth:280})
+      .bindTooltip(shortName,{
+        permanent:true, direction:'top',
+        offset:[0, -(sz/2)-2],
+        className:'mtt' + (o.type==='new'?' mtt-new':'')
+      });
+  });
+}
+
+// Map is slide 2 — init when user navigates to it (handled in go())
+</script>
+</body>
+</html>
