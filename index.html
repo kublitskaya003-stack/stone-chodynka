@@ -848,7 +848,6 @@
       <strong style="color:#aaa;">Ленинградский пр-т, 29к1</strong> — ближайший деловой коридор (~1,3 км), площадь 253 м² — наиболее сопоставима с 363 м²;
       <strong style="color:#aaa;">Маршала Рыбалко, 2к6</strong> — коммерческое помещение в жилом комплексе (~1,6 км), аналогичный формат стрит-ритейла.
       Среднее по 3 аналогам — <strong style="color:#e8c96a;">596 295 ₽/м²</strong> → потенциальная стоимость объекта <strong style="color:#4ade80;">216,5 млн ₽</strong>.
-      Предложение STONE Ходынка 1 этаж (2 060 000 ₽/м², <strong style="color:#B8913A;">747,8 млн ₽</strong>) превышает рынок в <strong style="color:#e8c96a;">3,5×</strong> — инвестиционная премия строящегося класса А.
     </div>
   </div>
 </section>
@@ -995,11 +994,18 @@ function go(n) {
 slides.forEach((s, i) => { if (i !== 0) s.style.display = 'none'; });
 ctr.textContent = '1 / ' + slides.length;
 
-// Hash navigation: #map or #2 → jump to that slide on load
+// Hash navigation: #map → jump to map slide and ensure tiles render
 (function() {
   const h = location.hash.replace('#','');
-  if (h === 'map') go(2);
-  else if (/^\d+$/.test(h)) { const idx = parseInt(h); if (idx > 0 && idx < slides.length) go(idx); }
+  if (h === 'map') {
+    setTimeout(() => {
+      go(2);
+      setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(); }, 300);
+    }, 50);
+  } else if (/^\d+$/.test(h)) {
+    const idx = parseInt(h);
+    if (idx > 0 && idx < slides.length) setTimeout(() => go(idx), 50);
+  }
 })();
 
 document.getElementById('prev').onclick = () => go(cur - 1);
